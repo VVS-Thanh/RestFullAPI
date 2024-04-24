@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserCollection;
 
 class UserController extends Controller
 {
@@ -29,31 +31,34 @@ class UserController extends Controller
             $users = $users->where($where);
         }
 
-        $users = $users->get();
+        $users = $users->with('posts')->paginate();
 
         if ($users->count() > 0) {
             $status = 'success';
         } else {
             $status = 'no_data';
         }
+        $users = new UserCollection($users, $status);
 
-        $response = [
-            'status' => $status,
-            'data' => $users
-        ];
-        return $response;
+        // $response = [
+        //     'status' => $status,
+        //     'data' => $users
+        // ];
+        return $users;
     }
 
     public function detail($id)
     {
 
-        $user = User::find($id);
+        $user = User::with('posts')->find($id);
 
         if (!$user) {
             $status = 'no_data';
         } else {
             $status = 'success';
         }
+
+        $user = new UserResource($user);
 
         $response = [
             'status' => $status,
