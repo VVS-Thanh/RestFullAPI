@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('users')->name('users.')->group(function () {
+Route::prefix('users')->name('users.')->middleware('auth:sanctum') ->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
 
     Route::get('/{user}', [UserController::class, 'detail'])->name('detail');
@@ -35,3 +36,8 @@ Route::prefix('users')->name('users.')->group(function () {
 
 
 Route::apiResource('products', ProductController::class);
+
+Route::post('login', [AuthController::class, 'login']);
+Route::get('token', [AuthController::class, 'getToken'])->middleware('auth:sanctum');
+
+Route::post('refresh-token', [AuthController::class, 'refreshToken']);

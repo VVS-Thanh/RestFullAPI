@@ -31,14 +31,16 @@ class UserController extends Controller
             $users = $users->where($where);
         }
 
-        $users = $users->with('posts')->paginate();
+        $users = $users->paginate();
 
         if ($users->count() > 0) {
-            $status = 'success';
+            $statusCode = 200;
+            $statusText = 'success';
         } else {
-            $status = 'no_data';
+            $statusCode = 204;
+            $statusText = 'no_data';
         }
-        $users = new UserCollection($users, $status);
+        $users = new UserCollection($users, $statusCode, $statusText);
 
         // $response = [
         //     'status' => $status,
@@ -53,15 +55,17 @@ class UserController extends Controller
         $user = User::with('posts')->find($id);
 
         if (!$user) {
-            $status = 'no_data';
+            $statusCode = 404;
+            $statusText = 'Not Found';
         } else {
-            $status = 'success';
+            $statusCode = 200;
+            $statusText = 'success';
+            $user = new UserResource($user);
         }
 
-        $user = new UserResource($user);
-
         $response = [
-            'status' => $status,
+            'status' => $statusCode,
+            'title' => $statusText,
             'data' => $user
         ];
 
@@ -80,12 +84,14 @@ class UserController extends Controller
 
         if ($user->id) {
             $response = [
-                'status' => 'success',
+                'status' => 201,
+                'title' => 'created',
                 'data' => $user
             ];
         } else {
             $response = [
-                'status' => 'error',
+                'status' => 500,
+                'tittle' => 'Server Error'
             ];
         }
         return $response;
@@ -130,7 +136,8 @@ class UserController extends Controller
             }
 
             $response = [
-                'status' => 'success',
+                'status' => 200,
+                'title' => 'success',
                 'data' => $user
             ];
         }
@@ -157,11 +164,10 @@ class UserController extends Controller
 
     public function validation($request, $id = 0)
     {
-
-        $emailValidation = 'required|email|unique:users';
+        $emailValidation = 'required|email|unique:users,email';
 
         if (!empty($id)) {
-            $emailValidation = ',email,' . $id;
+            $emailValidation .= ',' . $id;
         }
 
         $rules = [

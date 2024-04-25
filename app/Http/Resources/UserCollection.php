@@ -10,9 +10,11 @@ use App\Http\Resources\PostResource;
 class UserCollection extends ResourceCollection
 {
     private $statusText;
-    public function __construct($resource, $statusText= 'success'){
+    private $statusCode;
+    public function __construct($resource, $statusCode = 200, $statusText= 'success'){
         parent::__construct($resource);
         $this -> statusText = $statusText;
+        $this -> statusCode = $statusCode;
     }
     /**
      * Transform the resource collection into an array.
@@ -25,7 +27,8 @@ class UserCollection extends ResourceCollection
 
         return [
             'data' => $this->collection,
-            'status' => $this-> statusText,
+            'status' => $this-> statusCode,
+            'title' => $this -> statusText,
             'count' => $this -> collection->count(),
 
         ];
