@@ -1,10 +1,12 @@
 <?php
 
+use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +43,27 @@ Route::post('login', [AuthController::class, 'login']);
 Route::get('token', [AuthController::class, 'getToken'])->middleware('auth:sanctum');
 
 Route::post('refresh-token', [AuthController::class, 'refreshToken']);
+
+Route::get('passport-token' , function(){
+    $user = User::find(1);
+    $tokenResult = $user -> createToken('auth_api');
+
+    // Thiết lập expires time logout
+    $token = $tokenResult-> token;
+    $token -> expires_at = Carbon::now()-> addMinutes(60);
+
+    // Trả về accessToken đã tạo
+    $accessToken = $tokenResult-> accessToken;
+
+    //Trả expires
+    $expires = Carbon::parse($token -> expires_at) -> toDateTimeString();
+
+    $response = [
+        'accessToken' => $accessToken,
+        'expires' => $expires
+    ];
+
+    return $response;
+
+
+});
