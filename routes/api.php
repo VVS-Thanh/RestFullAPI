@@ -3,10 +3,12 @@
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProductController;
+use Laravel\Passport\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('users')->name('users.')->middleware('auth:sanctum') ->group(function () {
+Route::prefix('users')->name('users.')->middleware('auth:api') ->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('index');
 
     Route::get('/{user}', [UserController::class, 'detail'])->name('detail');
@@ -44,6 +46,7 @@ Route::get('token', [AuthController::class, 'getToken'])->middleware('auth:sanct
 
 Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 
+Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
 Route::get('passport-token' , function(){
     $user = User::find(1);
     $tokenResult = $user -> createToken('auth_api');
@@ -66,4 +69,6 @@ Route::get('passport-token' , function(){
     return $response;
 
 
+
 });
+
